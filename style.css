@@ -1,0 +1,57 @@
+body {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+.form {
+    margin: 50px auto;
+    width: 300px;
+    padding: 30px 25px;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+h1.login-title {
+    color: #666;
+    margin: 0px auto 25px;
+    font-size: 25px;
+    font-weight: 300;
+    text-align: center;
+}
+.login-input {
+    font-size: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: #ecf0f1;
+    padding: 10px;
+    margin-bottom: 25px;
+    height: 25px;
+    width: calc(100% - 23px);
+}
+.login-input:focus {
+    border-color: #3498db;
+    background: rgba(255, 255, 255, 0.2);
+    outline: none;
+}
+.login-button {
+    color: white;
+    border: none;
+    width: 100%;
+    padding: 12px;
+    font-size: 17px;
+    border-radius: 6px;
+}
+.link {
+    color: #ecf0f1;
+    color: #666;
+    font-size: 15px;
+    text-align: center;
+    margin-bottom: 0px;
+    text-decoration: none;
+}
+.link a {
+    color: #ecf0f1;
+}
+h3 {
+    font-weight: normal;
+    text-align: center;
+    color: #ecf0f1;
+}
