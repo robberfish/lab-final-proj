@@ -1,37 +1,41 @@
 <?php
-    // Connecting to the database
-    require('db.php');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-    if (isset($_POST['username'])) {
-        // Get data from the form
-        $username = stripslashes($_POST['username']);
-        $username = mysqli_real_escape_string($con, $username);
-        $email    = stripslashes($_POST['email']);
-        $email    = mysqli_real_escape_string($con, $email);
-        $password = stripslashes($_POST['password']);
-        $password = mysqli_real_escape_string($con, $password);
-        $create_datetime = date("Y-m-d H:i:s");
+require('db.php');
+if (!$con) {
+    die("Database connection failed: " . mysqli_connect_error());
+}
 
-        // Insert data into database
-        $query = "INSERT into `users` (username, password, email, create_datetime)
-                  VALUES ('$username', '" . md5($password) . "', '$email', '$create_datetime')";
+if (isset($_POST['username'])) {
+    $username = mysqli_real_escape_string($con, stripslashes($_POST['username']));
+    $email    = mysqli_real_escape_string($con, stripslashes($_POST['email']));
+    $password = mysqli_real_escape_string($con, stripslashes($_POST['password']));
+    $phone    = mysqli_real_escape_string($con, stripslashes($_POST['phone']));
+    $bday     = mysqli_real_escape_string($con, stripslashes($_POST['bday']));
+    $create_datetime = date("Y-m-d H:i:s");
+    $is_admin = 0; // default for new users
 
-        $result = mysqli_query($con, $query);
+    $query = "INSERT INTO users (username, password, email, phone, birthday, create_datetime, is_admin)
+              VALUES ('$username', '" . md5($password) . "', '$email', '$phone', '$bday', '$create_datetime', '$is_admin')";
 
-        // Handle success or failure
-        if ($result) {
-            echo "<div class='form'>
-                  <h3>YOU HAVE REGISTERED</h3><br/>
-                  <p class='link'>Click to <a href='login.php'>Login</a></p>
-                  </div>";
-        } else {
-            echo "<div class='form'>
-                  <h3>Required fields are missing or there was an error.</h3><br/>
-                  <p class='link'>Click to <a href='signup.php'>register</a> again.</p>
-                  </div>";
-        }
+    $result = mysqli_query($con, $query);
+
+    if ($result) {
+        echo "<div class='form'>
+              <h3>YOU HAVE REGISTERED</h3><br/>
+              <p class='link'>Click to <a href='login.php'>Login</a></p>
+              </div>";
+        exit(); // prevents the form from showing again
+    } else {
+        echo "<div class='form'>
+              <h3>Error: " . mysqli_error($con) . "</h3><br/>
+              <p class='link'>Click to <a href='signup.php'>register</a> again.</p>
+              </div>";
     }
+}
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -72,8 +76,7 @@
 
     <h1>Sign Up</h1>
     <form method="POST" action=""> <!-- Using POST method to submit the form to itself -->
-        <input type="text" name="fname" placeholder="First name" required>
-        <input type="text" name="lname" placeholder="Last name" required><br>
+      
         <input type="email" name="email" placeholder="Email" required>
         <input type="text" name="phone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="Phone number" required>
         <p>Birthday:</p><input type="date" name="bday" placeholder="Birthday" required><br>

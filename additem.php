@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $price = stripslashes($_POST['price']);
     $price = mysqli_real_escape_string($con, $price);
 
-    // Insert item into database
+    //Insert item into database
     $query = "INSERT INTO `items` (name, image_url, price) 
               VALUES ('$name', '$image_url', '$price')";
     $result = mysqli_query($con, $query);

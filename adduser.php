@@ -1,5 +1,17 @@
 <?php
-require('db.php'); 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+session_start();
+require('db.php');
+require('auth_session.php');
+
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) ||  $_SESSION['is_admin'] !== true) {
+    header("Location: login.php");
+    exit();
+}
+
+
 if ($_SERVER["REQUEST_METHOD"]== "POST"){
 
     $username = stripslashes($_POST['username']);
@@ -12,12 +24,13 @@ if ($_SERVER["REQUEST_METHOD"]== "POST"){
     $bday= mysqli_real_escape_string($con, $bday);
     $password =stripslashes($_POST['password']); 
     $password= mysqli_real_escape_string($con, $password);
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT); //hashed for xtra security
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     $create_datetime =date("Y-m-d H:i:s");
 
     //add user into db
     $query = "INSERT INTO `users` (username, password, email, phone, birthday, create_datetime)
-            VALUES ('$username', $hashed_password','$email','$phone', '$bday','$create_datetime')";
+            VALUES ('$username', '$hashed_password','$email','$phone', '$bday','$create_datetime')";
+    mysqli_query($con, $query);
 }
 ?>
 
@@ -30,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"]== "POST"){
     <link rel="stylesheet" href="styles.css">
     <style>
         /*would not let me use styles.css fo some reason*/
-       
+    
         a{
             color: black;
             font-weight: bolder;

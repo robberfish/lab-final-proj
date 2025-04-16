@@ -1,5 +1,7 @@
 <?php
 require('db.php'); //connect to db
+require('auth_session.php');
+
 if (isset($_GET['delete_id'])) {
     $delete_id = intval($_GET['delete_id']);
     $delete_query = "DELETE FROM `users` WHERE id = '$delete_id'";
