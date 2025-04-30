@@ -1,31 +1,36 @@
 <?php
-require('db.php'); //connect to db
-require('auth_session.php');
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+session_start();
+require('db.php');
 
-if (isset($_GET['delete_id'])) {
-    $delete_id = intval($_GET['delete_id']);
-    $delete_query = "DELETE FROM `users` WHERE id = '$delete_id'";
-
-    if (mysqli_query($con, $delete_query)) {
-        header("Location: dashboard.php"); 
-        exit();
-    } else {
-        echo "Error". mysqli_error($con);//handle errors
-    }
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['is_admin']) || $_SESSION['is_admin'] !== true) {
+    header("Location: login.php");
+    exit();
 }
 
-//get all users' info from the database
-$query = "SELECT id, username, email, phone, birthday FROM `users`";
-$result = mysqli_query($con, $query);
+//Get all trades with user names
+$query = "
+    SELECT 
+        t.id,
+        t.status,
+        t.completed_at,
+        u1.username AS owner_name,
+        u2.username AS buddy_name
+    FROM trades t
+    LEFT JOIN users u1 ON t.owner_id = u1.id
+    LEFT JOIN users u2 ON t.buddy_id = u2.id
+    ORDER BY t.completed_at DESC, t.id DESC
+";
+
+$result = $con->query($query);
 ?>
 
-
-
-<!--HTML script-->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pretend Photo Website - Dash</title>
+    <title>Trade Dashboard</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet" />
@@ -65,14 +70,8 @@ $result = mysqli_query($con, $query);
         </nav>
     </header>
     <meta charset="utf-8">
-
-
-    <!-- dashboard styling-->
-
-    <title>Dashboard</title>
-     <!--for some reason application would not allow styles.css so I had to do styling here-->
     <style>
-        table {
+       table {
             width: 80%;
             margin: 16px auto;
             border-collapse: collapse;
@@ -110,47 +109,39 @@ $result = mysqli_query($con, $query);
             margin-top: 20px;   
         }
     </style>
-
+</head>
+<body>
+    <h2 style="text-align:center;">All Trades (Admin View)</h2>
     <div class="form">
-        <h1>USER DASHBOARD</h1>
-        <div class="fresh-table full-color-orange">
-            <table id="fresh-table" class="table">
-                <thead> 
-                    <tr>
-                        <th>ID</th>
-                        <th>Username </th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Birthday</th>
-                        <th>Remove?</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($row = mysqli_fetch_assoc($result)) : ?>
-                        <tr><!--info from the db shown here-->
-                            <td><?php echo htmlspecialchars($row['id']);?></td>
-                            <td><?php echo htmlspecialchars($row['username']); ?></td>
-                            <td><?php echo htmlspecialchars($row['email']); ?></td>
-                            <td><?php echo htmlspecialchars($row['phone']);?></td>
-                            <td><?php echo htmlspecialchars($row['birthday']); ?></td>
-                            <td>
-                                <a href="dashboard.php?delete_id=<?php echo $row['id']; ?>">
-                                Delete 
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endwhile; ?>
-            </tbody>
-        </table>
-        <div class="group-buttons">
+    <div class="fresh-table full-color-orange">
+    <table id="fresh-table" class="table">
+        <tr>
+            <th>ID</th>
+            <th>Owner</th>
+            <th>Buddy</th>
+            <th>Status</th>
+            <th>Completed At</th>
+        </tr>
+
+        <?php while ($row = $result->fetch_assoc()): ?>
+            <tr>
+                <td><?= htmlspecialchars($row['id']) ?></td>
+                <td><?= htmlspecialchars($row['owner_name']) ?></td>
+                <td><?= htmlspecialchars($row['buddy_name']) ?></td>
+                <td><?= htmlspecialchars(ucfirst($row['status'])) ?></td>
+                <td><?= $row['completed_at'] ? htmlspecialchars($row['completed_at']) : '-' ?></td>
+            </tr>
+        <?php endwhile; ?>
+    </table>
+    <div class="group-buttons">
             <button><p><a href="adduser.php">Add New User</a></p></button>
             <button><p><a href="itemdash.php">Item Dashboard</a></p></button>
             <button><p><a href="logout.php">Logout</a></p></button>
         </div>
-    </div>
+        </div>
+        </div>
 </body>
 </html>
-<!-- Javascript, this is a template i was trying to implement but I couldn't get every part of it to work-->
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script src="https://unpkg.com/bootstrap-table/dist/bootstrap-table.min.js"></script>
@@ -171,3 +162,4 @@ $result = mysqli_query($con, $query);
     })
   })
   </script>
+
