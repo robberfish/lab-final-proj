@@ -22,10 +22,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("Location: dashboard.php");
             exit();
         } else {
-            echo "<p style='color:red;'>Invalid password.</p>";
+            echo "<p style='color:white;'>Invalid password.</p>";
         }
     } else {
-        echo "<p style='color:red;'>User not found.</p>";
+        echo "<p style='color:white;'>User not found.</p>";
     }
 }
 ?>
@@ -50,9 +50,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <li><a href="bio.html">BIO</a></li>
                 <li><a href="contactus.html">CONTACT</a></li>
                 <li><a href="login.php" class="active">LOGIN</a></li>
-                <li><a href="cart.html">CART</a></li>
+                <li><a href="cart.php">CART</a></li>
                 <li><a href="dashboard.php">ADMIN</a></li>
                 <li><a href="additem.php">POST</a></li>
+                <li><a href="submit.php">PENDING</a></li>
                 <a href="https://facebook.com" target="_blank"><i class="fa-brands fa-facebook-f" style="color: #ffffff;"></i></a>
                 <a href="https://x.com" target="_blank"><i class="fa-brands fa-x-twitter" style="color: #ffffff;"></i></a>
                 <a href="https://instagram.com" target="_blank"><i class="fa-brands fa-instagram" style="color: #ffffff;"></i></a>
@@ -72,8 +73,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <p style="color: red; text-align: center;"><?php echo $error; ?></p>
         <?php endif; ?>
 
-       <!-- <br>
-        <p>Don't have an account? Create one <a href="signup.php"><u>here</u></a>!</p>-->
+       <br>
+        <p>Don't have an account? Create one <a href="signup.php"><u>here</u></a>!</p>
+        <p>Log out <a href="logout.php"><u>here</u></a>!</p>
     </div>
 </body>
 </html>

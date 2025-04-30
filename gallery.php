@@ -1,8 +1,9 @@
 <?php
-require('db.php'); // Ensure this connects to your database
+require('db.php');
 
-// Fetch items from the database
-$query = "SELECT id, name, image_url, price FROM items";
+//Fetch items from the database
+$query = "SELECT id, name, image_url, price FROM items WHERE status = 'available'";
+
 $result = mysqli_query($con, $query);
 
 $items = [];
@@ -32,6 +33,9 @@ mysqli_close($con);
             background-attachment: fixed;
             margin: 0;
         }
+        button{
+            width: 30%;
+        }
 
         .container {
             padding: 16px;
@@ -50,20 +54,7 @@ mysqli_close($con);
             border-radius: 8px;
             box-shadow: 0px 0px 10px 8px rgba(255, 255, 255, 0.212);
         }
-        .btn{
-            background-color: green;
-            color:white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-        }
-        .btn:hover {
-            background-color:rgb(23, 76, 17);
-            color:white;
-        }
-        .btn:active {
-            transform: scale(0.98); 
-        }
+       
         .modal-body p {
             color: black;
         }   
@@ -82,9 +73,10 @@ mysqli_close($con);
                 <li><a href="bio.html">BIO</a></li>
                 <li><a href="contactus.html">CONTACT</a></li>
                 <li><a href="login.php" >LOGIN</a></li>
-                <li><a href="cart.html">CART</a></li>
+                <li><a href="cart.php">CART</a></li>
                 <li><a href="dashboard.php">ADMIN</a></li>
                 <li><a href="additem.php">POST</a></li>
+                <li><a href="submit.php">PENDING</a></li>
                 <a href="https://facebook.com" target="_blank"> 
                     <i class="fa-brands fa-facebook-f" style="color: #ffffff; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
                 </a><br>
@@ -122,39 +114,45 @@ mysqli_close($con);
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <img src="" class="img-fluid" id="m_image">
+                    <img src="uploads/<?php echo htmlspecialchars($item['image_url']); ?>" 
+                        data-bs-toggle="modal"
+                        data-id="42"
+                        data-name="Cool Hat"
+                        data-price="10"
+                        class="img-fluid"id="m_image">
                     <p id="m_text" class="mt-2"style="color: black;"></p>
                     <p id="m_price" class="mt-2" style="color: black;"s></p>
-                    <button type="button" class="btn" onclick="addToCart()">Add to Cart</button>
+                    <input type="hidden" id="m_id">
+                    <button type="button" class="button" onclick="addToCart()">Request Trade</button>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Bootstrap & JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
     
     <script>
-        // Handle modal data update
-        document.querySelectorAll('.container img[data-bs-toggle="modal"]').forEach(image => {
-            image.addEventListener('click', () => {
-                document.getElementById('m_image').src = image.src;
-                document.getElementById('m_text').textContent = image.getAttribute('data-name');
-                document.getElementById('m_price').textContent = "$" + image.getAttribute('data-price');
-            });
-        });
+      document.querySelectorAll('.container img[data-bs-toggle="modal"]').forEach(image => {
+    image.addEventListener('click', () => {
+        document.getElementById('m_image').src = image.getAttribute('src'); 
+        document.getElementById('m_text').textContent = image.getAttribute('data-name');
+        document.getElementById('m_price').textContent = "$" + image.getAttribute('data-price');
+        document.getElementById('m_id').value = image.getAttribute('data-id');
+    });
+});
 
-        // Add to cart function
+
+
         function addToCart() {
-            let name = document.getElementById('m_text').textContent;
-            let price = document.getElementById('m_price').textContent;
-            
-            let cart = JSON.parse(localStorage.getItem("cart")) || [];
-            cart.push({ name, price });
-            localStorage.setItem("cart", JSON.stringify(cart));
-            //alert(name + " added to your cart");
-        }
+    let name = document.getElementById('m_text').textContent;
+    let price = document.getElementById('m_price').textContent;
+    let id = document.getElementById('m_id').value; 
+
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    cart.push({ id, name, price }); 
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert(name + id +" added to your cart");
+}
     </script>
 </body>
 </html>
