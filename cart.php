@@ -23,7 +23,7 @@ if ($buddyRow = mysqli_fetch_assoc($buddyResult)) {
 
 //get buddy items 
 if ($buddyId) {
-    $buddyItemsStmt = mysqli_prepare($con, "SELECT id, name FROM items WHERE user_id = ?");
+    $buddyItemsStmt = mysqli_prepare($con, "SELECT id, name, price FROM items WHERE user_id = ?");
     mysqli_stmt_bind_param($buddyItemsStmt, "i", $buddyId);
     mysqli_stmt_execute($buddyItemsStmt);
     $buddyItemsResult = mysqli_stmt_get_result($buddyItemsStmt);
@@ -90,7 +90,11 @@ if ($buddyId) {
     <div class="card" style="background-color: rgba(0, 0, 0, 0.4); text-align: center;">
         <div class="card-header">
             <h2>Trade Pending</h2>
+            <p style="font-size: small;">All trades include a 15% transaction cost</p>
             <ul id="cart-items"></ul>
+            <p id="cart-total"></p>
+            
+            <p id="transaction-total" style="font-size: large;"></p>
         </div>
 
             
@@ -119,6 +123,7 @@ function loadCart() {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
     let cartList = document.getElementById("cart-items");
     cartList.innerHTML = "";
+    let total = 0; //calculating total price in cart
 
     if (cart.length === 0) {
         let emptyMessage = document.createElement("li");
@@ -131,6 +136,7 @@ function loadCart() {
             let itemContainer = document.createElement("div");
             let itemText = document.createElement("span");
             itemText.textContent = `${item.name} - ${item.price}`;
+            total += parseFloat(item.price.toString().replace("$","")); //adding each item to total price
             let removeButton = document.createElement("button");
             removeButton.textContent = "Remove";
             removeButton.onclick = function() {
@@ -144,6 +150,10 @@ function loadCart() {
             cartList.appendChild(listItem);
         });
     }
+    document.getElementById("cart-total").textContent = `Cart total: ${total}`; //display total to page
+    let transactionTotal = total + total*0.15;
+    document.getElementById("transaction-total").textContent = `Transaction total: ${transactionTotal.toFixed(2)}`;
+    document.cookie = "transactionTotal=" + transactionTotal.toFixed(2);
 }
 document.addEventListener("DOMContentLoaded", loadCart);
 </script>
@@ -156,8 +166,12 @@ document.addEventListener("DOMContentLoaded", loadCart);
                 <select name="offered_item_id" id="offered_item" required>
                     <option value="">-- Select an Item --</option>
                     <?php foreach ($buddyItems as $item): ?>
-                        <option value="<?= $item['id'] ?>"><?= htmlspecialchars($item['name']) ?></option>
-                    <?php endforeach; ?>
+                        
+                        <option value="<?= $item['id'] ?>" <?php if ($item['price'] < (float)$_COOKIE["transactionTotal"]) echo "disabled";?>> 
+                            <?= htmlspecialchars($item['name']) ?> - <?= htmlspecialchars($item['price']) ?> 
+                        </option>
+                        
+                        <?php endforeach; ?>
                 </select>
                 <input type="hidden" name="requested_item_id" id="requested_item_id" class="requested_item_id" required>
                 <button type="submit">Trade and Share Codes</button>
