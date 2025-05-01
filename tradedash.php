@@ -136,6 +136,7 @@ $result = $con->query($query);
     <div class="group-buttons">
             <button><p><a href="adduser.php">Add New User</a></p></button>
             <button><p><a href="itemdash.php">Item Dashboard</a></p></button>
+            <button><p><a href="tradedash.php">Transaction History</a></p></button>
             <button><p><a href="logout.php">Logout</a></p></button>
         </div>
         </div>
