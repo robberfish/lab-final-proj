@@ -14,36 +14,43 @@ body {
     border-radius: 5px; 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
 }
-h1 {
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    color: #ffffff;
-    text-align: center;
-    font-weight: bolder;
-    font-size: 80px;
-}
 
 /* Header styles */
 header {
-    background-color: rgba(0, 0, 0, 0.4);
-    padding-top:32px;
-    position: fixed;
-    width: 128px;
-    top: 0;
-    right: 0;
-    z-index: 1000;
-    line-height: 48px;
-    height: 100vh;
-    margin: 0;
+    background-color: rgba(0, 0, 0, 0.4)!important; /*styling was being really tricky with the other templates*/
+    padding-top:32px!important;
+    position: fixed!important;
+    width: 128px!important;
+    top: 0!important;
+    right: 0!important;
+    z-index: 1000!important;
+    line-height: 48px!important;
+    height: 100vh!important;
+    margin: 0!important;
     
 }
 
-header h1 {
-    padding: 8px 16px;
-    color: rgb(255, 255, 255);
-    text-align: left;
-    font-weight: bolder;
+.h1 {
+    padding: 8px 16px!importants;
+    color: rgb(255, 255, 255)!important;
+    text-align: left!important;
+    font-weight: bolder!important;
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    font-size: 32px;
+    font-size: 32px!important;
+}
+header h1 {
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif !important;
+    color: #ffffff !important;
+    text-align: center !important;
+    font-weight: bolder !important;
+    font-size: 80px !important;
+}
+
+/* Override any nav link styles */
+header .nav-links li a {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: smaller !important;
+    padding: 8px 16px !important;
 }
 
 /* Navigation styles */

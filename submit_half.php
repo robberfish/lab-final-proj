@@ -20,20 +20,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Missing required fields.");
     }
 
-    //Fetch trade details
-    $stmt = $con->prepare("SELECT owner_id, buddy_id, requested_item_id, offered_item_id, status FROM trades WHERE id = ?");
+    // Fetch trade details
+    $stmt = $con->prepare("SELECT requester_id, buddy_id, owner_id, offered_item_id, requested_item_id FROM trades WHERE id = ?");
     $stmt->bind_param("i", $tradeId);
     $stmt->execute();
-    $stmt->bind_result($ownerId, $buddyId, $requestedItemId, $offeredItemId, $tradeStatus);
-    $stmt->fetch();
+    $tradeResult = $stmt->get_result();
+    $trade = $tradeResult->fetch_assoc();
     $stmt->close();
 
-    if (!$ownerId || !$buddyId) {
-        die("Invalid trade.");
+    if (!$trade) {
+        die("Trade not found.");
     }
 
-    //Validate requested item
-    if ($requestedItemId !== null) {
+    $requesterId = $trade['requester_id'];
+    $buddyId = $trade['buddy_id'];
+    $ownerId = $trade['owner_id'];
+    $offeredItemId = $trade['offered_item_id'];
+    $requestedItemId = $trade['requested_item_id'];
+
+    // Validate requested item if present
+    if (!empty($requestedItemId)) {
         $check = $con->prepare("SELECT id FROM items WHERE id = ?");
         $check->bind_param("i", $requestedItemId);
         $check->execute();
@@ -44,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $check->close();
     }
 
-    //Determine role and update
+    // Determine which side is submitting
     if ($userId === $ownerId) {
         $updateQuery = "UPDATE trades SET owner_half = ?, owner_submitted = 1, requested_item_id = ? WHERE id = ?";
     } elseif ($userId === $buddyId) {
@@ -58,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute();
     $stmt->close();
 
-    //see if both halves have been submitted
+    // Check if both sides have submitted
     $stmt = $con->prepare("SELECT owner_submitted, buddy_submitted FROM trades WHERE id = ?");
     $stmt->bind_param("i", $tradeId);
     $stmt->execute();
@@ -67,17 +73,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->close();
 
     if ($ownerSubmitted && $buddySubmitted) {
-        //trade is complete, add timestamp in
+        // Mark trade complete
         $stmt = $con->prepare("UPDATE trades SET status = 'complete', completed_at = NOW() WHERE id = ?");
         $stmt->bind_param("i", $tradeId);
         $stmt->execute();
         $stmt->close();
 
-        //remove both items froms shop by marking unavailable
+        // Mark items as unavailable
         $stmt = $con->prepare("UPDATE items SET status = 'unavailable' WHERE id IN (?, ?)");
         $stmt->bind_param("ii", $offeredItemId, $requestedItemId);
         $stmt->execute();
         $stmt->close();
+
+        // Get buddy of owner (X’s buddy)
+        $stmt = $con->prepare("SELECT buddy_id FROM users WHERE id = ?");
+        $stmt->bind_param("i", $ownerId);
+        $stmt->execute();
+        $stmt->bind_result($buddyOfX);
+        $stmt->fetch();
+        $stmt->close();
+
+        if (!$buddyOfX) {
+            die("Buddy of owner not found. Cannot complete trade.");
+        }
+
+        // Transfer item ownership
+$stmt = $con->prepare("UPDATE items SET user_id = CASE
+WHEN id = ? THEN ?  -- Item 1 (from X) → goes to A (requester)
+WHEN id = ? THEN ?  -- Item 2 (from B) → goes to X’s buddy (Y)
+END
+WHERE id IN (?, ?)");
+$stmt->bind_param(
+"iiiiii",
+$requestedItemId, $requesterId,  // item 1 → A (requester)
+$offeredItemId, $buddyOfX,       // item 2 → Y (X's buddy)
+$requestedItemId, $offeredItemId
+);
+$stmt->execute();
+$stmt->close();
     }
 
     header("Location: submit.php");

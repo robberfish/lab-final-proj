@@ -33,14 +33,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pretend Photo Website - Login</title>
+    <title>Pretend Photo Website - Dash</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="assets/css/fresh-bootstrap-table.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,700,300" rel="stylesheet" type="text/css">
 </head>
 <body>
     <header>
-        <i class="fa-solid fa-bug" style="color: #ffffff; font-size: 80px; display: block; align-content: center;margin-right: 15px;padding: 8px 16px;"></i>
-        <h1 id='p1' style="color: white; font-size:32px;">
+    <i class="fa-solid fa-bug" style="color: #ffffff; font-size: 72px; display: block; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
+        <h1 id='p1' style="color: rgb(255, 255, 255); text-align: left; font-weight: bolder; font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; font-size:32px;">
             BEE <br> BUY <br>
         </h1>
         <nav>
@@ -49,15 +55,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <li><a href="gallery.php">SHOP</a></li>
                 <li><a href="bio.html">BIO</a></li>
                 <li><a href="contactus.html">CONTACT</a></li>
-                <li><a href="login.php" class="active">LOGIN</a></li>
                 <li><a href="cart.php">CART</a></li>
+                <li><a href="login.php"class="active">LOGIN</a></li>
                 <li><a href="dashboard.php">ADMIN</a></li>
                 <li><a href="additem.php">POST</a></li>
                 <li><a href="submit.php">PENDING</a></li>
-                <a href="https://facebook.com" target="_blank"><i class="fa-brands fa-facebook-f" style="color: #ffffff;"></i></a>
-                <a href="https://x.com" target="_blank"><i class="fa-brands fa-x-twitter" style="color: #ffffff;"></i></a>
-                <a href="https://instagram.com" target="_blank"><i class="fa-brands fa-instagram" style="color: #ffffff;"></i></a>
-            </ul>
+                <a href="https://facebook.com" target="_blank"> 
+                    <i class="fa-brands fa-facebook-f" style="color: #ffffff; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
+                </a><br>
+                <a href="https://x.com" target="_blank"> 
+                    <i class="fa-brands fa-x-twitter" style="color: #ffffff; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
+                </a><br>
+                <a href="https://instagram.com" target="_blank"> 
+                    <i class="fa-brands fa-instagram" style="color: #ffffff; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
+                </a>
+                </ul>
         </nav>
     </header>
 

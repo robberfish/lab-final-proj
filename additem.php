@@ -1,28 +1,35 @@
 <?php
 session_start();
 require('db.php');
+
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
-$user_id = $_SESSION['user_id']; //Get logged-in user's ID
 
-//query to fetch the user's posted items
+$user_id = $_SESSION['user_id'];
+$is_admin = $_SESSION['is_admin'] ?? false;
+
+// Fetch all users (for admin owner selection dropdown)
+$users_result = mysqli_query($con, "SELECT id, username FROM users ORDER BY username ASC");
+
+// Fetch current user's items
 $query = "SELECT * FROM items WHERE user_id = ?";
 $stmt = $con->prepare($query);
 $stmt->bind_param("i", $user_id); 
 $stmt->execute();
-
-//set result
 $items_result = $stmt->get_result();
 $stmt->close();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = mysqli_real_escape_string($con, stripslashes($_POST['name']));
     $price = mysqli_real_escape_string($con, stripslashes($_POST['price']));
-    $user_id=$user_id = $_SESSION['user_id'];
-    //allow user to upload image
-    $target_dir = "uploads/"; 
+
+    // Use selected user_id if admin, otherwise default to logged-in user
+    $selected_user_id = $is_admin && isset($_POST['owner_id']) ? (int)$_POST['owner_id'] : $user_id;
+
+    // Image handling
+    $target_dir = "uploads/";
     $image_file = $_FILES['image']['name'];
     $image_tmp = $_FILES['image']['tmp_name'];
     $image_ext = strtolower(pathinfo($image_file, PATHINFO_EXTENSION));
@@ -35,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (move_uploaded_file($image_tmp, $target_file)) {
             $image_url = mysqli_real_escape_string($con, $target_file);
             $query = "INSERT INTO `items` (name, image_url, price, user_id) 
-                      VALUES ('$name', '$image_url', '$price', '$user_id')";
+                      VALUES ('$name', '$image_url', '$price', '$selected_user_id')";
             $result = mysqli_query($con, $query);
         } else {
             echo "Error uploading file.";
@@ -44,56 +51,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "Only JPG, JPEG, and PNG are allowed.";
     }
 }
-
-
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-<title>Pretend Photo Website - Login</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <header>
-<i class="fa-solid fa-bug" style="color: #ffffff; font-size: 72px; display: block; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
-        <h1 id='p1' style="color: rgb(255, 255, 255); text-align: left; font-weight: bolder; font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; font-size:32px;">
-            BEE <br> BUY <br>
-        </h1>
-        <nav>
-            <ul class="nav-links">
-                <li><a href="index.html">HOME</a></li>
-                <li><a href="gallery.php">SHOP</a></li>
-                <li><a href="bio.html">BIO</a></li>
-                <li><a href="contactus.html">CONTACT</a></li>
-                <li><a href="cart.php" class="active">CART</a></li>
-                <li><a href="login.php">LOGIN</a></li>
-                <li><a href="dashboard.php">ADMIN</a></li>
-                <li><a href="additem.php">POST</a></li>
-                <li><a href="submit.php">PENDING</a></li>
-                <a href="https://facebook.com" target="_blank"> 
-                    <i class="fa-brands fa-facebook-f" style="color: #ffffff; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
-                </a><br>
-                <a href="https://x.com" target="_blank"> 
-                    <i class="fa-brands fa-x-twitter" style="color: #ffffff; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
-                </a><br>
-                <a href="https://instagram.com" target="_blank"> 
-                    <i class="fa-brands fa-instagram" style="color: #ffffff; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
-                </a>
-                </ul>
-        </nav>
-</header>
+     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="assets/css/fresh-bootstrap-table.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Fonts and icons -->
+  <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
+  <link href="http://fonts.googleapis.com/css?family=Roboto:400,700,300" rel="stylesheet" type="text/css">
     <meta charset="utf-8">
-    <title>Add New Item </title>
+    <title>Add New Item</title>
     <link rel="stylesheet" href="styles.css">
     <style>
         a { color: black; font-weight: bolder; }
-        body { background-image: url("mountains.jpg");
-    background-color: gray;
-    background-blend-mode: multiply;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-attachment: fixed;
-    margin: 0;}
+        body {
+            background-image: url("mountains.jpg");
+            background-color: gray;
+            background-blend-mode: multiply;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            margin: 0;
+        }
         h1 { color: white; font-size: 24px; }
         a:hover {
             background-color: rgba(40, 90, 121, 0.21);
@@ -105,18 +91,76 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             text-align: center;
             margin-top: 20px;
         }
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            background-color: #fff;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            color: #333;
+            appearance: none;
+        }
     </style>
 </head>
 <body>
+<header>
+<i class="fa-solid fa-bug" style="color: #ffffff; font-size: 72px; display: block; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
+        <h1 id='p1' style="color: rgb(255, 255, 255); text-align: left; font-weight: bolder; font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; font-size:32px;">
+            BEE <br> BUY <br>
+        </h1>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="gallery.php">SHOP</a></li>
+                <li><a href="bio.html">BIO</a></li>
+                <li><a href="contactus.html">CONTACT</a></li>
+                <li><a href="cart.php" >CART</a></li>
+                <li><a href="login.php">LOGIN</a></li>
+                <li><a href="dashboard.php">ADMIN</a></li>
+                <li><a href="additem.php"class="active">POST</a></li>
+                <li><a href="submit.php">PENDING</a></li>
+                
+                </ul>
+        </nav>
+        <a href="https://facebook.com" target="_blank"> 
+                    <i class="fa-brands fa-facebook-f" style="color: #ffffff; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
+                </a><br>
+                <a href="https://x.com" target="_blank"> 
+                    <i class="fa-brands fa-x-twitter" style="color: #ffffff; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
+                </a><br>
+                <a href="https://instagram.com" target="_blank"> 
+                    <i class="fa-brands fa-instagram" style="color: #ffffff; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
+                </a>
+                </ul>
+</header>
+
 <form method="POST" action="additem.php" enctype="multipart/form-data">
     <input type="text" name="name" placeholder="Red Shoes" required>
     <input type="file" name="image" accept="image/png, image/jpeg" required>
     <input type="text" name="price" placeholder="100.00" required>
+
+    <?php if ($is_admin): ?>
+        <label for="user_id">Select Item Owner:</label>
+        <select name="user_id" required>
+            <option value="">-- Select a user --</option>
+            <?php while ($user = mysqli_fetch_assoc($users_result)): ?>
+                <option value="<?= $user['id'] ?>"><?= htmlspecialchars($user['username']) ?></option>
+            <?php endwhile; ?>
+        </select>
+    <?php else: ?>
+        <!--Automatically pass the logged-in user's ID UNLESS the owner is an admin then they get to pick-->
+        <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>">
+    <?php endif; ?>
+
     <button type="submit">Add New Item</button>
 </form>
 
-</body>
-</html>
+
 <?php if ($items_result && mysqli_num_rows($items_result) > 0): ?>
     <div class="postings-section">
         <h1>Your Current Postings</h1>
@@ -138,5 +182,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <p>No items posted yet.</p>
     </div>
 <?php endif; ?>
-
-
+</body>
+</html>

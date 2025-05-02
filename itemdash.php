@@ -1,13 +1,15 @@
 <?php
 require('db.php'); //connect to db
-if (isset($_GET['delete_id'])) {
-    $delete_id = intval($_GET['delete_id']);
-    $delete_query = "DELETE FROM `items` WHERE id = '$delete_id'";
-    if (mysqli_query($con, $delete_query)) {
-        header("Location: itemdash.php"); //redirect to refresh the page
+if (isset($_GET['delete_item_id'])) {
+    $delete_item_id = intval($_GET['delete_item_id']);
+    
+    $delete_item_query = "UPDATE `items` SET deleted = 1 WHERE id = '$delete_item_id'";
+
+    if (mysqli_query($con, $delete_item_query)) {
+        header("Location: dashboard.php");
         exit();
     } else {
-        echo "Error". mysqli_error($con);
+        echo "Error: " . mysqli_error($con);
     }
 }
 //get all users' info from the database
@@ -24,7 +26,6 @@ $result = mysqli_query($con, $query);
   <link href="assets/css/fresh-bootstrap-table.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
-  <!-- Fonts and icons -->
   <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
   <link href="http://fonts.googleapis.com/css?family=Roboto:400,700,300" rel="stylesheet" type="text/css">
 </head>
@@ -62,13 +63,14 @@ $result = mysqli_query($con, $query);
      <!--for some reason application would not allow styles.css so I had to do styling here-->
     <style>
         table {
-            width: 80%;
+            width: 70%;
             margin: 16px auto;
             border-collapse: collapse;
         }
         body{
             background-color: white;
             background-image:none;
+            width: 90%;
         }
         h1{
             color:black;
@@ -131,9 +133,8 @@ $result = mysqli_query($con, $query);
             </tbody>
         </table>
         <div class="group-buttons">
-            <button><p><a href="adduser.php">Add New User</a></p></button>
-            <button><p><a href="itemdash.php">Item Dashboard</a></p></button>
-            <button><p><a href="tradedash.php">Transaction History</a></p></button>
+            <button><p><a href="additem.php">Add New Item</a></p></button>
+            <button><p><a href="dashboard.php">User Dashboard</a></p></button>
             <button><p><a href="logout.php">Logout</a></p></button>
         </div>
 

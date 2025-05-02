@@ -2,7 +2,10 @@
 require('db.php');
 
 //Fetch items from the database
-$query = "SELECT id, name, image_url, price FROM items WHERE status = 'available'";
+$query = "SELECT items.id, items.name, items.image_url, items.price, users.username 
+    FROM items
+    JOIN users ON items.user_id = users.id
+    WHERE items.status = 'available'";
 
 $result = mysqli_query($con, $query);
 
@@ -19,9 +22,6 @@ mysqli_close($con);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="styles.css">
     <title>BB Shop</title>
     <style>
         body {
@@ -61,19 +61,30 @@ mysqli_close($con);
     </style>
 </head>
 <body>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="assets/css/fresh-bootstrap-table.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" rel="stylesheet">
+  <link href="http://fonts.googleapis.com/css?family=Roboto:400,700,300" rel="stylesheet" type="text/css">
     <header>
-        <i class="fa-solid fa-bug" style="color: #ffffff; font-size: 80px; display: block; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
+    <i class="fa-solid fa-bug" style="color: #ffffff; font-size: 72px; display: block; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
         <h1 id='p1' style="color: rgb(255, 255, 255); text-align: left; font-weight: bolder; font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; font-size:32px;">
-        BEE <br> BUY <br>
+            BEE <br> BUY <br>
         </h1>
         <nav>
             <ul class="nav-links">
-                <li><a href="index.html">HOME</a></li>
+                <li><a href="index.html" >HOME</a></li>
                 <li><a href="gallery.php"class="active">SHOP</a></li>
                 <li><a href="bio.html">BIO</a></li>
                 <li><a href="contactus.html">CONTACT</a></li>
-                <li><a href="login.php" >LOGIN</a></li>
                 <li><a href="cart.php">CART</a></li>
+                <li><a href="login.php">LOGIN</a></li>
                 <li><a href="dashboard.php">ADMIN</a></li>
                 <li><a href="additem.php">POST</a></li>
                 <li><a href="submit.php">PENDING</a></li>
@@ -81,14 +92,15 @@ mysqli_close($con);
                     <i class="fa-brands fa-facebook-f" style="color: #ffffff; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
                 </a><br>
                 <a href="https://x.com" target="_blank"> 
-                    <i class="fa-brands fa-x-twitter" style="color: #ffffff; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
+                    <i class="fa-brands fa-x-twitter" style="color: #ffffff; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px; text-decoration: none;"></i>
                 </a><br>
                 <a href="https://instagram.com" target="_blank"> 
                     <i class="fa-brands fa-instagram" style="color: #ffffff; align-content: center;margin-right: 15px;padding: 8px 16px; border-radius: 0px;"></i>
                 </a>
                 </ul>
-        </nav>
-    </header>
+        </nav></header>
+   
+</div>
 
     <div class="container mt-5 pt-5">
         <div class="row row-cols-1 row-cols-md-3 g-3">
@@ -101,7 +113,8 @@ mysqli_close($con);
                          data-bs-target="#open-modal" 
                          data-id="<?php echo $item['id']; ?>" 
                          data-name="<?php echo htmlspecialchars($item['name']); ?>" 
-                         data-price="<?php echo $item['price']; ?>">
+                         data-price="<?php echo $item['price']; ?>"
+                         data-username="<?php echo htmlspecialchars($item['username']); ?>">
                 </div>
             <?php endforeach; ?>
         </div>
@@ -123,6 +136,7 @@ mysqli_close($con);
                     <p id="m_text" class="mt-2"style="color: black;"></p>
                     <p id="m_price" class="mt-2" style="color: black;"s></p>
                     <input type="hidden" id="m_id">
+                    <p id="m_user" class="mt-2" style="color: black; font-style: italic;"></p>
                     <button type="button" class="button" onclick="addToCart()">Request Trade</button>
                 </div>
             </div>
@@ -138,12 +152,10 @@ mysqli_close($con);
         document.getElementById('m_text').textContent = image.getAttribute('data-name');
         document.getElementById('m_price').textContent = "$" + image.getAttribute('data-price');
         document.getElementById('m_id').value = image.getAttribute('data-id');
+        document.getElementById('m_user').textContent = "Posted by: " + image.getAttribute('data-username');
     });
 });
-
-
-
-        function addToCart() {
+function addToCart() {
     let name = document.getElementById('m_text').textContent;
     let price = document.getElementById('m_price').textContent;
     let id = document.getElementById('m_id').value; 
@@ -151,8 +163,7 @@ mysqli_close($con);
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
     cart.push({ id, name, price }); 
     localStorage.setItem("cart", JSON.stringify(cart));
-    alert(name + id +" added to your cart");
-}
-    </script>
+    alert(name +" added to your cart");
+}</script>
 </body>
 </html>

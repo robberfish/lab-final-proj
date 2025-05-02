@@ -4,18 +4,18 @@ require('auth_session.php');
 
 if (isset($_GET['delete_id'])) {
     $delete_id = intval($_GET['delete_id']);
-    $delete_query = "DELETE FROM `users` WHERE id = '$delete_id'";
-
+    $delete_query = "UPDATE `users` SET deleted = 1 WHERE id = '$delete_id'";
     if (mysqli_query($con, $delete_query)) {
         header("Location: dashboard.php"); 
         exit();
     } else {
-        echo "Error". mysqli_error($con);//handle errors
+        echo "Error: " . mysqli_error($con);
     }
 }
 
+
 //get all users' info from the database
-$query = "SELECT id, username, email, phone, birthday FROM `users`";
+$query = "SELECT id, username, email, phone, birthday FROM `users` WHERE deleted = 0";
 $result = mysqli_query($con, $query);
 ?>
 
@@ -47,9 +47,9 @@ $result = mysqli_query($con, $query);
                 <li><a href="gallery.php">SHOP</a></li>
                 <li><a href="bio.html">BIO</a></li>
                 <li><a href="contactus.html">CONTACT</a></li>
-                <li><a href="cart.php" class="active">CART</a></li>
+                <li><a href="cart.php">CART</a></li>
                 <li><a href="login.php">LOGIN</a></li>
-                <li><a href="dashboard.php">ADMIN</a></li>
+                <li><a href="dashboard.php"class="active">ADMIN</a></li>
                 <li><a href="additem.php">POST</a></li>
                 <li><a href="submit.php">PENDING</a></li>
                 <a href="https://facebook.com" target="_blank"> 
@@ -73,13 +73,14 @@ $result = mysqli_query($con, $query);
      <!--for some reason application would not allow styles.css so I had to do styling here-->
     <style>
         table {
-            width: 80%;
+            width: 70%;
             margin: 16px auto;
             border-collapse: collapse;
         }
         body{
             background-color: white;
             background-image:none;
+            width: 90%;
         }
         h1{
             color:black;
@@ -145,7 +146,6 @@ $result = mysqli_query($con, $query);
         <div class="group-buttons">
             <button><p><a href="adduser.php">Add New User</a></p></button>
             <button><p><a href="itemdash.php">Item Dashboard</a></p></button>
-            <button><p><a href="tradedash.php">Transaction History</a></p></button>
             <button><p><a href="logout.php">Logout</a></p></button>
         </div>
     </div>
@@ -155,13 +155,18 @@ $result = mysqli_query($con, $query);
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
 <script src="https://unpkg.com/bootstrap-table/dist/bootstrap-table.min.js"></script>
+
 <script type="text/javascript">
   var $table = $('#fresh-table')
+
   $(function () {
     $table.bootstrapTable({
       classes: 'table table-hover table-striped',
       search: true,
+      pagination: true,
       striped: true,
+      pageSize: 8,
+      pageList: [8, 10, 25, 50, 100],
 
       formatShowingRows: function (pageFrom, pageTo, totalRows) {
         return ''
@@ -171,4 +176,4 @@ $result = mysqli_query($con, $query);
       }
     })
   })
-  </script>
+</script>
